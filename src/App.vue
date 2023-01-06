@@ -1,0 +1,34 @@
+<template>
+  <NavBlack/>
+  <router-view/>
+</template>
+
+<script>
+import NavBlack from "@/components/Nav";
+export default {
+  components: {NavBlack}
+}
+</script>
+
+<style>
+.form-signin {
+  max-width: 330px;
+  padding: 15px;
+}
+
+.form-signin .form-floating:focus-within {
+  z-index: 2;
+}
+
+.form-signin input[type="username"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.form-signin input[type="password"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+</style>
