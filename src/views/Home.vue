@@ -31,7 +31,6 @@ onMounted(async () => {
   else{
     await store.dispatch('setMessage', `Hi ${sessionStorage.getItem('user_name')}`);
     const {data} = await axios.get('/profile/' + sessionStorage.getItem('user_id'), { withCredentials: true });
-    console.log(data)
   }
 });
 
