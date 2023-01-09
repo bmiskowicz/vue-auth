@@ -6,6 +6,8 @@ import ForgotView from '@/views/Forgot.vue';
 import ResetView from '@/views/Reset.vue';
 import ProfileView from '@/views/Profile.vue';
 import ProfilesView from '@/views/Profiles.vue';
+import WorkspacesView from '@/views/Workspaces.vue';
+import WorkspaceView from '@/views/Workspace.vue';
 
 
 
@@ -17,6 +19,8 @@ const routes: Array<RouteRecordRaw> = [
   {path: '/reset/:token', component: ResetView},
   {path: '/profile', component: ProfileView},
   {path: '/profile/:id', component: ProfilesView},
+  {path: '/workspace/:id', component: WorkspacesView},
+  {path: '/workspace/', component: WorkspaceView},
 ]
 
 const router = createRouter({

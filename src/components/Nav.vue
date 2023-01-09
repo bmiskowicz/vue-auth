@@ -3,21 +3,24 @@
     <div class="container">
       <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
         <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-          <li><router-link to="/" class="btn btn-outline-light me-2">Home</router-link></li>
+          <li><a  v-bind:href="'/'" class="btn btn-outline-light me-2">Home</a></li>
           <li>
             <div class="text-end" v-if="auth">
-              <router-link to="/profile" class="btn btn-outline-light me-2">Profiles</router-link>
-              <router-link :to="'/profile/' + this.profileId" class="btn btn-outline-light me-2">Profile</router-link>
+              <a  v-bind:href="'/profile/'" class="btn btn-outline-light me-2">Profiles</a>
+              <a  v-bind:href="'/profile/' + this.profileId" class="btn btn-outline-light me-2">
+                Profile
+              </a>
             </div>
           </li>
         </ul>
 
         <div class="text-end" v-if="auth">
-          <router-link to="/" class="btn btn-outline-light me-2" @click="logout">Logout</router-link>
+          <a a  v-bind:href="'/'" class="btn btn-outline-light me-2" @click="logout">Logout</a>
         </div>
         <div class="text-end" v-if="!auth">
-          <router-link to="/login" class="btn btn-outline-light me-2">Login</router-link>
-          <router-link to="/register" class="btn btn-outline-light me-2">Register</router-link>
+          <a  v-bind:href="'/login'" class="btn btn-outline-light me-2">Login</a>
+          <a v-bind:href="'/register'" class="btn btn-outline-light me-2">Register</a>
+
         </div>
       </div>
     </div>

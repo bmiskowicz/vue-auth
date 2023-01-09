@@ -4,14 +4,13 @@
     <div class="form-signin w-100 m-auto" v-if="this.message!==''">
       {{this.message}}
     </div>
-    <main class="form-signin w-100 m-auto" v-if="this.datas.profileId==this.user">
+    <main class="form-signin w-100 m-auto">
 
 
-      Workspaces: <br>
-      <div v-for="(item) in datas.workspaceMembersSet" :key="item.id">
-        {{item}}
-      </div>
 
+        <a v-bind:href="'/workspace'">
+          Click HERE to access your workspaces
+        </a>
       <br><br>
       <form @submit.prevent="submit">
         <h1 class="h3 mb-3 fw-normal">Change your profile</h1>
@@ -38,9 +37,8 @@
 
         Creation date: {{datas.creationDate.toString().slice(0, 10)}}<br>
         Icon: {{datas.icon}}<br>
-        <div class="mb-3">
-          <router-link :to="'/profile/' + datas.profileId">Cancel</router-link>
-        </div>
+
+        <br>
 
         <button class="w-100 btn btn-lg btn-primary" type="submit" @click="updated">Change</button>
         <br><br>
@@ -59,8 +57,6 @@
   <div class="form-signin w-100 m-auto" v-if="this.message!==''">
     {{this.message}}
   </div>
-
-
 
 </template>
 

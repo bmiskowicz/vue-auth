@@ -16,7 +16,8 @@
         <router-link to="/forgot">forgot password?</router-link>
       </div>
 
-      <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+        <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+
     </form>
 
     </main>-->
@@ -53,6 +54,8 @@ const submit = async () => {
 
   const response = await axios.post('/api/auth/signin', {"username":data.username, "password":data.password}, {withCredentials: true});
   responseData = response.data
+  console.log(responseData)
+  sessionStorage.setItem('token', responseData.accessToken)
   sessionStorage.setItem('user_id', response.data.id.toString())
   sessionStorage.setItem('user_name', data.username)
   axios.defaults.headers.common['Authorization'] = `Bearer ${responseData.accessToken}`;

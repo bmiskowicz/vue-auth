@@ -31,14 +31,14 @@ export default {
         var titles = [];
         var id = []
         for(var i = 0; i < response.data.length; i++){
-        var users = []
-        id.push(response.data[i].profileId);
-        users.push(
-            response.data[i].login.username,
-            response.data[i].login.email,
-            response.data[i].icon,
-            response.data[i].creationDate,
-            response.data[i].workspaceMembersSet
+          var users = []
+          id.push(response.data[i].profileId);
+          users.push(
+              response.data[i].login.username,
+              response.data[i].login.email,
+              response.data[i].icon,
+              response.data[i].creationDate,
+              response.data[i].workspaceMembersSet
         );
         titles.push(users)
       }
