@@ -58,9 +58,9 @@ export default {
                   : this.message = "Profile with such ID does not exist";
               let element
               for (element in this.datas.workspaceMembersSet) {
-                axios.get(/workspace/ + toRaw(this.datas.workspaceMembersSet[element]).workspaceMembersId)
+                axios.get(/members/ + toRaw(this.datas.workspaceMembersSet[element]).workspaceMembersId)
                     .then(responses => {
-                      this.workspaces.push(responses.data)
+                      this.workspaces.push(responses.data.workspace)
                     })
               }
             })

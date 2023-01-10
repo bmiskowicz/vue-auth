@@ -33,6 +33,7 @@ export default {
 <script setup>
 import {reactive} from "vue";
 import axios from "axios";
+import {useRouter} from "vue-router";
 
 const data = reactive({
   id: '',
@@ -48,13 +49,13 @@ let responseData = reactive({
   roles: ''
 })
 
+const router = useRouter();
 const emit = defineEmits(['loginData', 'success']);
 
 const submit = async () => {
 
   const response = await axios.post('/api/auth/signin', {"username":data.username, "password":data.password}, {withCredentials: true});
   responseData = response.data
-  console.log(responseData)
   sessionStorage.setItem('token', responseData.accessToken)
   sessionStorage.setItem('user_id', response.data.id.toString())
   sessionStorage.setItem('user_name', data.username)

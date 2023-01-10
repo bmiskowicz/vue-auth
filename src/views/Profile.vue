@@ -3,7 +3,7 @@
     {{this.message}}
     <div v-for="(item, id) in this.datas" :key="item.id">
       <a v-bind:href="'/profile/'+ ids[id]">
-        {{item}}
+        {{item[0]}}, {{item[1]}}
         <br>
         <br>
       </a>

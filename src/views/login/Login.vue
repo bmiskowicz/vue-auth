@@ -30,6 +30,7 @@ const success = async () => {
   await store.dispatch('setAuth', sessionStorage.getItem('user_id')!=='');
   await store.dispatch('setId', loginData.id);
   await router.push('/');
+  window.location.reload();
 }
 
 </script>

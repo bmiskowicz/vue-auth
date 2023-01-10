@@ -1,13 +1,7 @@
 <template>
   <div v-if="this.message===''">
 
-    <div class="form-signin w-100 m-auto" v-if="this.message!==''">
-      {{this.message}}
-    </div>
-    <main class="form-signin w-100 m-auto">
-
-
-
+    <main class="form-signin w-100 m-auto" v-if="this.datas.login.loginId==this.user">
         <a v-bind:href="'/workspace'">
           Click HERE to access your workspaces
         </a>
