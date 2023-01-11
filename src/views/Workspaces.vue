@@ -2,30 +2,49 @@
   <div class="form-signin w-100 m-auto">
     {{this.message}}
     <div  v-if="this.auth">
-      Workspace name: {{datas.workspaceName}}<br><br>
-      Workspace description: {{datas.workspaceDescription}}<br><br>
-      Workspace Members Set:
-      <div v-for="(item) in this.members" :key="item.id">
-        <a v-bind:href="'/profile/'+ item.profile.profileId">{{item.profile.login.username}}</a>, role: {{item.role}}
+      <form  v-if="isAdmin">
+        <h1 class="h3 mb-3 fw-normal">Workspace {{datas.workspaceName}}</h1>
+
+        Workspace name:
+        <div class="form-floating">
+          <input v-model="this.name" type="text" class="form-control" id="floatingInput" placeholder=''>
+          <label for="floatingInput">{{datas.workspaceName}}</label>
+        </div>
+        <br>
+
+        Workspace description:
+        <div class="form-floating">
+          <input v-model="this.description" type="text" class="form-control" id="floatingInput" placeholder=''>
+          <label for="floatingInput">{{datas.workspaceDescription}}</label>
+        </div>
+
+        <br>
+        Workspace Members Set:
+        <div v-for="(item) in this.members" :key="item.id">
+          <a v-bind:href="'/profile/'+ item.profile.profileId">{{item.profile.login.username}}</a>, role: {{item.role}}
+          <div v-if="item.role==='USER'" @click="changeRole(item)"><button type="button">Set as admin</button></div>
+          <div v-if="item.role==='ADMIN'" @click="changeRole(item)"><button type="button">Set as user</button></div>
+          <div  @click="drop"><button type="button">Drop from project</button></div>
+          <br>
+        </div>
+
+        <br>
+        <button class="w-100 btn btn-lg btn-primary" type="button" @click="updated">Update</button>
+        <br><br>
+          <button class="w-100 btn btn-lg btn-primary" type="submit" @click="deleted">Delete</button>
+      </form>
+
+      <div v-if="!isAdmin">
+        Workspace name: {{datas.workspaceName}}<br><br>
+        Workspace description: {{datas.workspaceDescription}}<br><br>
+        Workspace Members Set:
+        <div v-for="(item) in this.members" :key="item.id">
+          <a v-bind:href="'/profile/'+ item.profile.profileId">{{item.profile.login.username}}</a>, role: {{item.role}}
+        </div>
       </div>
 
-      <br><br>
-      <div v-if="isAdmin">
-        <button class="w-100 btn btn-lg btn-primary" type="submit" @click="deleted">Delete</button>
       </div>
-
     </div>
-
-<!--    <div v-for="(item, id) in this.datas" :key="item.id">-->
-<!--      <a v-bind:href="'/workspace/'+ this.workspaces[id].workspaceId">-->
-<!--        Workspace: {{ this.workspaces[id].workspaceName }}-->
-<!--      </a>-->
-<!--      <br>-->
-<!--      Workspace description: <br> {{ this.workspaces[id].workspaceDescription }}-->
-<!--      <br>-->
-<!--      <br>-->
-<!--    </div>-->
-  </div>
 </template>
 
 <script>
@@ -43,6 +62,8 @@ export default {
       user: sessionStorage.getItem('user_id'),
       isAdmin: false,
       auth: false,
+      name: '',
+      description: '',
     }
   },
   created() {
@@ -70,36 +91,55 @@ export default {
   },
   methods: {
     updated() {
-      // let data1 = this.datas;
-      // if (this.username !== '') data1.login.username = this.username;
-      // if (this.email !== '') data1.login.email = this.email;
-      // if (this.password !== '') data1.login.password = this.password;
-      // data1 = toRaw(data1)
-      // axios.patch('/profile/' + data1.profileId + '/update', null, {
-      //   params: {
-      //     "profileId": data1.profileId,
-      //     "email": data1.login.email,
-      //     "password": data1.login.password,
-      //     "username": data1.login.username
-      //   }
-      // })
+      if (this.name !== '') this.datas.workspaceName = this.name;
+      if (this.description !== '') this.datas.workspaceDescription = this.description;
+      axios.put('/workspace/' + this.datas.workspaceId + '/update', null, {
+        params: {
+          "workspaceName": this.datas.workspaceName,
+          "workspaceDescription": this.datas.workspaceDescription
+        }
+      })
+          .then(
+              response => response.status,
+          )
+          .catch(err => console.log(err));
+      },
+      deleted() {
+      axios.delete('/workspace/' + this.datas.workspaceId + '/delete', null,)
+          .then(
+              response => response.status,
+          )
+          .catch(err => console.warn(err));
+      this.$router.go()
+      router.push('/workspace')
+      window.location.reload();
+    },
+    changeRole(data) {
+      data.role = data.role==='ADMIN'?data.role="USER":data.role="ADMIN";
+      axios.put('/members/' + data.workspaceMembersId + '/update',  null, {
+        params: {
+          "role": data.role,
+        },
+        headers:{
+          "Authorization": sessionStorage.getItem('token')
+        }
+      })
+          .then(
+              response => response.status,
+          )
+          .catch(err => console.log(err));
+    },
+    drop() {
+      console.log("DROP!")
+      // axios.delete('/workspace/' + this.datas.workspaceId + '/delete', null,)
       //     .then(
       //         response => response.status,
       //     )
       //     .catch(err => console.warn(err));
-      //
-      // sessionStorage.setItem('user_name', data1.login.username)
-    },
-  deleted() {
-    axios.delete('/workspace/' + this.datas.workspaceId + '/delete', null,)
-        .then(
-            response => response.status,
-        )
-        .catch(err => console.warn(err));
-    this.$router.go()
-    router.push('/workspace')
-    window.location.reload();
+      // this.$router.go()
+      // router.push('/workspace')
+      // window.location.reload();
+    }
   }
-  },
 }
 </script>
