@@ -9,6 +9,7 @@
               <a  v-bind:href="'/profile/'" class="btn btn-outline-light me-2">Profiles</a>
               <a  v-bind:href="'/profile/' + this.profileId" class="btn btn-outline-light me-2">Profile</a>
               <a  v-bind:href="'/workspace/'" class="btn btn-outline-light me-2">Workspaces</a>
+              <a  v-bind:href="'/profile/:id/issues/'" class="btn btn-outline-light me-2"> My issues</a>
             </div>
           </li>
         </ul>

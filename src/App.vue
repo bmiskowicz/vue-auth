@@ -12,8 +12,8 @@ export default {
 
 <style>
 .form-signin {
-  max-width: 330px;
-  padding: 15px;
+  max-width: 630px;
+  padding: 60px;
 }
 
 .form-signin .form-floating:focus-within {

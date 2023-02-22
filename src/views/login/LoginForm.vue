@@ -52,8 +52,10 @@ const emit = defineEmits(['loginData', 'success']);
 
 const submit = async () => {
 
+  console.log(data)
   const response = await axios.post('/api/auth/signin', {"username":data.username, "password":data.password}, {withCredentials: true});
   responseData = response.data
+  console.log(responseData)
   sessionStorage.setItem('token', responseData.accessToken)
   sessionStorage.setItem('user_id', response.data.id.toString())
   sessionStorage.setItem('user_name', data.username)
