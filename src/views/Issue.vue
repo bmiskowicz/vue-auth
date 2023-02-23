@@ -1,49 +1,70 @@
 <template>
   <div class="form-signin m-auto">
     {{this.message}}
-    <div  v-if="this.auth">
-      <form  v-if="isAdmin">
-        <h3 class="h3 mb-3 fw-normal">Issue: {{datas.issueName}}</h3>
-        Issue workspace: {{datas.workspaceName}}<br>
-        Issue creation: {{datas.creationDate}}<br>
-        Issue deadline: {{datas.deadline}}<br>
-<!--        Issue name:-->
-<!--        <div class="form-floating">-->
-<!--          <input v-model="this.name" type="text" class="form-control" id="floatingInput" placeholder=''>-->
-<!--          <label for="floatingInput">{{datas.issueName}}</label>-->
-<!--        </div>-->
-<!--        <br>-->
+    <div v-if="this.auth">
+      <form>
+        <div v-if="this.isAdmin">
+          Issue name:  <input v-model="datas.issueName" type="text" class="form" id="floatingInput">
+        </div>
 
-<!--        Issue description:-->
-<!--        <div class="form-floating">-->
-<!--          <input v-model="this.description" type="text" class="form-control" id="floatingInput" placeholder=''>-->
-<!--          <label for="floatingInput">{{datas.issueDescription}}</label>-->
-<!--        </div>-->
+        <div v-if="!this.isAdmin">
+        <h4 class="fw-normal">Issue: {{datas.issueName}}</h4>
+        </div>
+
+        Issue workspace: <a v-bind:href="'/workspace/'+ this.datas.workspaceId">{{this.workspaceName}}</a><br>
+        <div  v-if="this.changeAuth" class="form-floating">
+          Issue state: {{datas.state}}   -
+          <select v-model=state id="stage" name="stage">
+            <option value="OPEN">OPEN</option>
+            <option value="IN_PROGRESS">IN_PROGRESS</option>
+            <option value="DONE">DONE</option>
+            <option value="CLOSED">CLOSED</option>
+          </select>
+        </div>
+        <div v-if="!this.changeAuth">
+          Issue state: {{datas.state}}<br>
+        </div>
+
+        Issue creation: {{datas.creationDate}}<br>
+        <div v-if="this.isAdmin">
+          Issue deadline: {{datas.deadline}}
+          <div class="form-floating">
+            <input v-model=deadline type="datetime-local" class="form" id="deadlineInput">
+          </div>
+        </div>
+        <div v-if="!this.isAdmin">
+          Issue deadline: {{datas.deadline}}<br>
+        </div>
 
         <br>
         Issues members:
         <div v-for="(item) in this.issueMembers" :key="item.id">
-          <a v-bind:href="'/profile/'+ item.profile.profileId">{{item.profile.login.username}}</a>
-<!--          <div v-if="item.role==='USER'" @click="changeRole(item)"><button type="button">Set as admin</button></div>-->
-<!--          <div v-if="item.role==='ADMIN'" @click="changeRole(item)"><button type="button">Set as user</button></div>-->
-<!--          <div  @click="drop"><button type="button">Drop from project</button></div>-->
-          <br>
+          <h6><a v-bind:href="'/profile/'+ item.profileId">{{item.login.username}}</a></h6>
+          <div v-if="this.isAdmin">
+            <div @click="drop(item.profileId)"><button type="button">Drop from issue</button></div>
+            <br>
+          </div>
         </div>
-
         <br>
-        <button class="w-100 btn btn-lg btn-primary" type="button" @click="updated">Update</button>
-        <br><br>
-        <button class="w-100 btn btn-lg btn-primary" type="submit" @click="deleted">Delete</button>
-      </form>
-
-      <div v-if="!isAdmin">
-        Issue name: {{datas.issueName}}<br><br>
-        Issue creation date: {{datas.creationDate}}<br><br>
-        Issue Members:
-        <div v-for="(item) in this.issueMembers" :key="item.id">
-          <a v-bind:href="'/profile/'+ item.profile.profileId">{{item.profile.login.username}}</a>
+        <div  v-if="this.isAdmin">
+          Add to issue:
+          <select  v-model=selected>
+            <option v-for="option in this.members" :key="option.profileId" :value="option.profileId">{{ option.login.username }}</option>
+          </select>
+          <br><br>
+          <div @click="added()"><button type="button">Add to issue</button></div>
         </div>
-      </div>
+        <br>
+        <br>
+
+        <div v-if="this.changeAuth">
+          <button class="w-100 btn btn-lg btn-primary" type="button" @click="updated()">Update</button>
+        </div>
+        <br>
+        <div v-if="this.isAdmin">
+          <button class="w-100 btn btn-lg btn-secondary" type="submit" @click="deleted">Delete</button>
+        </div>
+      </form>
 
     </div>
   </div>
@@ -66,8 +87,13 @@ export default {
       user: sessionStorage.getItem('user_id'),
       isAdmin: false,
       auth: false,
+      changeAuth: false,
       name: '',
       description: '',
+      workspaceName: '',
+      deadline: '',
+      state: '',
+      selected: '',
     }
   },
   created() {
@@ -77,29 +103,37 @@ export default {
             .then(response => {
               response.data ? this.datas = response.data
                   : this.message = "Issue with such ID does not exist";
-              console.log(this.datas);
               this.datas.creationDate = moment(this.datas.creationDate).format('YYYY-MM-DD HH:mm:ss')
               this.datas.deadline = moment(this.datas.deadline).format('YYYY-MM-DD HH:mm:ss')
               let i
-              for(i in toRaw(this.datas.profileIssuesSet)){
-                  axios.get('/profileissues/' + this.datas.profileIssuesSet[i].piId)
-                      .then(response3 => {
-                        this.issueMembers.push(response3.data)
-                        if(response3.data.profile.login.loginId == sessionStorage.getItem('user_id')) this.auth = true;
-                      })
+              for (i in toRaw(this.datas.profileIssuesSet)) {
+                axios.get('/profileissues/' + this.datas.profileIssuesSet[i].piId)
+                    .then(response3 => {
+                      this.issueMembers.push(response3.data.profile)
+                      if (response3.data.profile.login.loginId == sessionStorage.getItem('user_id')) this.changeAuth = true;
+                    })
               }
-
               axios.get('/members/workspace/' + this.datas.workspaceId)
                   .then(response2 => {
-                    this.members = toRaw(response2.data)
                     let i
-                    for (i in this.members){
-                      if(this.members[i].profile.login.loginId == sessionStorage.getItem('user_id')) {
+                    for (i in toRaw(response2.data)) {
+                      if (!this.issueMembers.some(function (data) {
+                        return data.profileId === response2.data[i].profile.profileId
+                      })) this.members.push(response2.data[i].profile)
+
+                      if (toRaw(response2.data)[i].profile.login.loginId == sessionStorage.getItem('user_id')) {
                         this.message = '';
                         this.auth = true;
-                        if(this.members[i].role === "ADMIN") this.isAdmin = true;
+                        if (toRaw(response2.data)[i].role === "ADMIN") {
+                          this.isAdmin = true;
+                          this.changeAuth = true;
+                        }
                       }
                     }
+                  })
+              axios.get('/workspace/' + this.datas.workspaceId)
+                  .then(response4 => {
+                    this.workspaceName = toRaw(response4.data.workspaceName)
                   })
             })
         : this.message = "You are not logged in. Log in to access profiles";
@@ -107,18 +141,28 @@ export default {
   },
   methods: {
     updated() {
-      // if (this.name !== '') this.datas.issueName = this.name;
-      // if (this.description !== '') this.datas.issueDescription = this.description;
-      // axios.put('/issues/' + this.datas.issueId + '/update', null, {
-      //   params: {
-      //     "issueName": this.datas.workspaceName,
-      //     "issueDescription": this.datas.issueDescription
-      //   }
-      // })
-      //     .then(
-      //         response => response.status,
-      //     )
-      //     .catch(err => console.log(err));
+      if(this.state === '') this.state = this.datas.state
+      if(this.deadline === '')  this.deadline = this.datas.deadline
+      let endDateStr = moment(this.deadline).format('YYYY-MM-DD HH:mm:ss')
+      let dateNow = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
+      if(endDateStr > dateNow) {
+        axios.put('/issues/'+ this.datas.issueId + '/update', null, {
+          params: {
+            "issueId": this.datas.issueId,
+            "issueName": this.issueName,
+            "deadlined": moment(this.deadline).format("YYYY-MM-DDTHH:mm"),
+            "state": this.state,
+          },
+          headers: {
+            "Authorization": sessionStorage.getItem('token')
+          }
+        })
+            .then(
+                response => response.status,
+                window.location.reload(),
+            )
+            .catch(err => console.log(err));
+      }
     },
     deleted() {
       axios.delete('/issues/' + this.datas.issueId + '/delete', null,)
@@ -127,32 +171,43 @@ export default {
           )
           .catch(err => console.warn(err));
       this.$router.go()
-      router.push('/issue')
+      router.push('/profile/issue')
+    },
+    drop(profileId) {
+      axios.delete('/profileissues/delete', {
+        params: {
+          "profileId": profileId,
+          "issueId": window.location.pathname.slice(7)
+        }})
+          .then(
+              response => response.status,
+          )
+          .catch(err => console.warn(err));
       window.location.reload();
     },
-    changeRole(data) {
-      // data.role = data.role==='ADMIN'?data.role="USER":data.role="ADMIN";
-      // axios.put('/members/' + data.issueMembersId + '/update',  null, {
-      //   params: {
-      //     "role": data.role,
-      //   },
-      //   headers:{
-      //     "Authorization": sessionStorage.getItem('token')
-      //   }
-      // })
-      //     .then(
-      //         response => response.status,
-      //     )
-      //     .catch(err => console.log(err));
+    added() {
+      if (this.selected !== undefined) {
+        axios.post('/profileissues/post', null, {
+          params: {
+            "profileId": this.selected,
+            "issueId": window.location.pathname.slice(7)
+          }
+        })
+            .then(
+                response => response.status,
+            )
+            .catch(err => console.log(err));
+        window.location.reload()
+      }
     },
   }
 }
 </script>
 
 
+<!--TODO: front - w workspace dodać zaproszenia -->
+<!--TODO: front - w workspace dodać zaproszenia dla kogoś -->
 
-<!--TODO: w issue zrobić klasycznie przeglądanie issue;
-      jeśli jest się adminem nadrzędnego workspace albo pracuje się w tym issue to można zmieniać issue
-      (pracownik stan, może sam z niego wyjść, admin nazwę i członków albo usuwać je-->
-<!--TODO: w workspace dodać zaproszenia -->
-<!--TODO: w workspace dodać zaproszenia dla kogoś -->
+
+<!--TODO: na backu - jeśli ktoś jest wyrzucony z workspace to wypada ze wszystkich issue w nim -->
+<!--TODO: na backu - jeśli ktoś wychodzi z workspace i jest ostatni, to usuwa się wszystko związane z tym workspace-->

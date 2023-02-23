@@ -3,47 +3,46 @@
     {{this.message}}
     <div  v-if="this.auth">
       <form  v-if="isAdmin">
-        <h1 class="h3 mb-3 fw-normal">Workspace {{datas.workspaceName}}</h1>
-
-        Workspace name:
+        <h4>Workspace name:</h4>
         <div class="form-floating">
-          <input v-model="this.name" type="text" class="form-control" id="floatingInput" placeholder=''>
+          <input v-model="this.name" type="text" class="form-control" id="floatingInput" placeholder='{{datas.workspaceName}}'>
           <label for="floatingInput">{{datas.workspaceName}}</label>
         </div>
         <br>
 
-        Workspace description:
+        <h5>Workspace description:</h5>
         <div class="form-floating">
-          <input v-model="this.description" type="text" class="form-control" id="floatingInput" placeholder=''>
+          <input v-model="this.description" type="text" class="form-control" id="floatingInput" placeholder='{{datas.workspaceDescription}}'>
           <label for="floatingInput">{{datas.workspaceDescription}}</label>
         </div>
 
         <br>
-        Workspace Members Set:
+        <h5>Workspace Members:</h5>
         <div v-for="(item) in this.members" :key="item.id">
           <a v-bind:href="'/profile/'+ item.profile.profileId">{{item.profile.login.username}}</a>, role: {{item.role}}
           <div v-if="item.role==='USER'" @click="changeRole(item)"><button type="button">Set as admin</button></div>
           <div v-if="item.role==='ADMIN'" @click="changeRole(item)"><button type="button">Set as user</button></div>
-          <div  @click="drop"><button type="button">Drop from project</button></div>
+          <div  @click="drop(item.profile.profileId)"><button type="button">Drop from project</button></div>
           <br>
         </div>
 
         <br>
         <button class="w-100 btn btn-lg btn-primary" type="button" @click="updated">Update</button>
         <br><br>
-          <button class="w-100 btn btn-lg btn-primary" type="submit" @click="deleted">Delete</button>
+          <button class="w-100 btn btn-lg btn-secondary" type="submit" @click="deleted">Delete</button>
       </form>
 
       <div v-if="!isAdmin">
-        Workspace name: {{datas.workspaceName}}<br><br>
-        Workspace description: {{datas.workspaceDescription}}<br><br>
-        Workspace Members Set:
+        <h4>Workspace name:</h4> {{datas.workspaceName}}<br><br>
+        <h5>Workspace description:</h5> {{datas.workspaceDescription}}<br><br>
+        <h5>Workspace members:</h5>
         <div v-for="(item) in this.members" :key="item.id">
           <a v-bind:href="'/profile/'+ item.profile.profileId">{{item.profile.login.username}}</a>, role: {{item.role}}
         </div>
       </div>
 
       <br>
+      <h5>Issues: </h5>
       <div v-for="(item, id) in this.issues" :key="item.id">
         <a v-bind:href="'/issue/'+ this.issues[id].issueId">
           Issue: {{ this.issues[id].issueName }}
@@ -165,6 +164,7 @@ export default {
       })
           .then(
               response => response.status,
+              window.location.reload(),
           )
           .catch(err => console.log(err));
     },
@@ -189,16 +189,18 @@ export default {
             .catch(err => console.log(err));
       }
     },
-    drop() {
-      console.log("DROP!")
-      // axios.delete('/workspace/' + this.datas.workspaceId + '/delete', null,)
-      //     .then(
-      //         response => response.status,
-      //     )
-      //     .catch(err => console.warn(err));
-      // this.$router.go()
-      // router.push('/workspace')
-      // window.location.reload();
+    drop(profileId) {
+      console.log(profileId)
+      axios.delete('/members/delete', {
+        params: {
+          "profileId": profileId,
+          "workspaceId": window.location.pathname.slice(11)
+        }})
+          .then(
+              response => response.status,
+          )
+          .catch(err => console.warn(err));
+      window.location.reload();
     }
   }
 }

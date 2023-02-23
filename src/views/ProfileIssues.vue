@@ -46,10 +46,10 @@ export default {
               response.data ? this.datas = response.data
                   : this.message = "Profile with such ID does not exist";
               let element
-              for (element in toRaw(this.datas.profileIssuesSet)) {
-                axios.get(/issues/ + toRaw(this.datas.profileIssuesSet[element]).piId)
+              for (element in this.datas.profileIssuesSet) {
+                axios.get(/profileissues/ + this.datas.profileIssuesSet[element].piId)
                     .then(responses => {
-                      this.issues.push(responses.data)
+                      this.issues.push(responses.data.issue)
                     })
               }
             })

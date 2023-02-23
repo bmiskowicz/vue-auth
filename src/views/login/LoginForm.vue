@@ -12,9 +12,9 @@
         <label for="floatingPassword">Password</label>
       </div>
 
-      <div class="mb-3">
-        <router-link to="/forgot">forgot password?</router-link>
-      </div>
+<!--      <div class="mb-3">-->
+<!--        <router-link to="/forgot">forgot password?</router-link>-->
+<!--      </div>-->
 
         <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
 
@@ -51,7 +51,6 @@ let responseData = reactive({
 const emit = defineEmits(['loginData', 'success']);
 
 const submit = async () => {
-
   console.log(data)
   const response = await axios.post('/api/auth/signin', {"username":data.username, "password":data.password}, {withCredentials: true});
   responseData = response.data
