@@ -203,5 +203,6 @@ export default {
 }
 </script>
 
-<!--TODO: na backu - jeśli ktoś jest wyrzucony z workspace to wypada ze wszystkich issue w nim -->
-<!--TODO: na backu - jeśli ktoś wychodzi z workspace i jest ostatni, to usuwa się wszystko związane z tym workspace-->
+<!--TODO: match backend permissions to frontend permissions-->
+<!--TODO: profile icons-->
+<!--TODO: front-end style-->
