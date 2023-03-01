@@ -70,6 +70,21 @@
 
         <br>
         <button class="w-100 btn btn-lg btn-primary" type="button" @click="createdIssue">Create issue</button>
+
+        <br><br>
+
+        <div v-for="(item, id) in this.invites" :key="item.id">
+          <a v-bind:href="'/profile/'+ this.invites[id].profile.login.loginId">
+            User: {{ this.invites[id].profile.login.username}}
+          </a>
+          <div @click="deleteInvitation(this.invites[id].workspaceInvitationId)"><button type="button">Delete invitation</button></div>
+          <br>
+        </div>
+
+        <br><br>
+
+        Send invitation:  <input v-model="this.username" type="text" class="form" id="floatingInput">
+        <div @click="inviteUser()"><button type="button">Invite</button></div>
       </form>
 
 
@@ -90,6 +105,7 @@ export default {
       datas: [],
       members: [],
       issues: [],
+      invites: [],
       message: 'You are not a member of this workspace',
       user: sessionStorage.getItem('user_id'),
       isAdmin: false,
@@ -98,6 +114,7 @@ export default {
       description: '',
       issueName: '',
       issueDeadline: '',
+      username: ''
     }
   },
   created() {
@@ -107,24 +124,28 @@ export default {
             .then(response => {
               response.data ? this.datas = response.data
                   : this.message = "Workspace with such ID does not exist";
-                  axios.get('/members/workspace/' + window.location.pathname.slice(11))
-                      .then(response2 => {
-                        this.members = toRaw(response2.data)
-                        let i
-                        for (i in this.members){
-                          if(this.members[i].profile.login.loginId == sessionStorage.getItem('user_id')) {
-                            this.message = '';
-                            this.auth = true;
-                            if(this.members[i].role === "ADMIN") this.isAdmin = true;
-                          }
-                        }
-                      })
-                      axios.get('/issues/' + window.location.pathname.slice(11) + '/issues')
-                          .then(response3 => {
-                            this.issues = toRaw(response3.data)
-                          })
+              axios.get('/members/workspace/' + window.location.pathname.slice(11))
+                  .then(response2 => {
+                    this.members = toRaw(response2.data)
+                    let i
+                    for (i in this.members) {
+                      if (this.members[i].profile.login.loginId == sessionStorage.getItem('user_id')) {
+                        this.message = '';
+                        this.auth = true;
+                        if (this.members[i].role === "ADMIN") this.isAdmin = true;
+                      }
+                    }
+                  })
+              axios.get('/issues/' + window.location.pathname.slice(11) + '/issues')
+                  .then(response3 => {
+                    this.issues = toRaw(response3.data)
+                  })
+              axios.get('/invite/workspace/' + window.location.pathname.slice(11))
+                  .then(response4 => {
+                    this.invites = toRaw(response4.data)
+                  })
             })
-        : this.message = "You are not logged in. Log in to access profiles";
+        : this.message = "You are not logged in. Log in to access workspaces";
 
   },
   methods: {
@@ -141,8 +162,8 @@ export default {
               response => response.status,
           )
           .catch(err => console.log(err));
-      },
-      deleted() {
+    },
+    deleted() {
       axios.delete('/workspace/' + this.datas.workspaceId + '/delete', null,)
           .then(
               response => response.status,
@@ -153,12 +174,12 @@ export default {
       window.location.reload();
     },
     changeRole(data) {
-      data.role = data.role==='ADMIN'?data.role="USER":data.role="ADMIN";
-      axios.put('/members/' + data.workspaceMembersId + '/update',  null, {
+      data.role = data.role === 'ADMIN' ? data.role = "USER" : data.role = "ADMIN";
+      axios.put('/members/' + data.workspaceMembersId + '/update', null, {
         params: {
           "role": data.role,
         },
-        headers:{
+        headers: {
           "Authorization": sessionStorage.getItem('token')
         }
       })
@@ -171,8 +192,8 @@ export default {
     createdIssue() {
       let endDateStr = moment(this.issueDeadline).format('YYYY-MM-DD HH:mm:ss')
       let dateNow = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
-      if(endDateStr > dateNow) {
-      axios.post('/issues/post', null, {
+      if (endDateStr > dateNow) {
+        axios.post('/issues/post', null, {
           params: {
             "issueName": this.issueName,
             "deadlined": this.issueDeadline,
@@ -190,18 +211,51 @@ export default {
       }
     },
     drop(profileId) {
-      console.log(profileId)
       axios.delete('/members/delete', {
         params: {
           "profileId": profileId,
           "workspaceId": window.location.pathname.slice(11)
-        }})
+        },
+        headers: {
+          "Authorization": sessionStorage.getItem('token')
+        }
+      })
           .then(
               response => response.status,
           )
           .catch(err => console.warn(err));
       window.location.reload();
+    },
+    deleteInvitation(data) {
+      axios.delete('/invite/delete/' + data, {
+          headers: {
+        "Authorization": sessionStorage.getItem('token')
+      }
+      })
+          .then(
+              response => response.status,
+          )
+          .catch(err => console.warn(err));
+      window.location.reload();
+    },
+    inviteUser() {
+      if (this.username !== '') {
+        axios.post('/invite/', null, {
+          params: {
+            "username": this.username,
+            "workspaceId": window.location.pathname.slice(11),
+          },
+          headers: {
+            "Authorization": sessionStorage.getItem('token')
+          }
+        })
+            .then(
+                response => response.status,
+                window.location.reload(),
+            )
+            .catch(err => console.log(err));
+      }
     }
-  }
+  },
 }
 </script>

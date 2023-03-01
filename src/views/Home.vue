@@ -26,7 +26,7 @@ const router = useRouter();
 
 onMounted(async () => {
   await store.dispatch('setAuth', !!sessionStorage.getItem('user_name'));
-  if(sessionStorage.getItem('user_name')===''){
+  if(sessionStorage.getItem('user_name')!=="null"){
     await store.dispatch('setMessage', 'You are not logged in');
     setTimeout(() => store.dispatch('setMessage', 'You are not logged in'), 2000);
     setTimeout(() => store.dispatch('setMessage', 'Redirecting to login page ...'), 4000);

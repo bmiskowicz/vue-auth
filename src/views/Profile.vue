@@ -15,7 +15,7 @@
         </div>
          Email
         <div class="form-floating">
-          <input v-model="email" type="email" class="form-control" id="floatingInput" placeholder=''>
+          <input v-model="email" type="email" class="form-control" id="floatingInput2" placeholder=''>
           <label for="floatingInput">{{ datas.login.email }}</label>
         </div>
   <!--       Icon-->
@@ -37,6 +37,19 @@
         <button class="w-100 btn btn-lg btn-primary" type="submit" @click="updated">Change</button>
         <br><br>
         <button class="w-100 btn btn-lg btn-primary" type="submit" @click="deleted">Delete</button>
+        <br><br>
+
+
+        <div v-for="(item, id) in this.invites" :key="item.id">
+          <a v-bind:href="'/workspace/'+ this.invites[id].workspace.workspaceId">
+            Workspace: {{ this.invites[id].workspace.workspaceName}}
+          </a>
+          <br>
+          <button @click="deleteInvitation(this.invites[id].workspaceInvitationId)" type="button">Reject invitation</button>
+          {{ }}
+          <button @click="acceptInvitation(this.invites[id])" type="button">Accept invitation</button>
+          <br>
+        </div>
       </form>
 
     </main>
@@ -68,6 +81,7 @@ export default {
       username: '',
       email: '',
       password: '',
+      invites: [],
     }
   },
   created() {
@@ -80,6 +94,10 @@ export default {
               :this.message="Profile with such ID does not exist";
     })
         :this.message = "You are not logged in. Log in to access profiles";
+    axios.get('/invite/profile/' + window.location.pathname.slice(9))
+        .then(response2 => {
+          this.invites = toRaw(response2.data)
+        })
   },
   methods: {
     updated () {
@@ -111,7 +129,40 @@ export default {
       sessionStorage.setItem('user_id', '')
       sessionStorage.setItem('user_name', '')
       router.push('/')
+    },
+
+    deleteInvitation(data) {
+      axios.delete('/invite/delete/' + data, {
+        headers: {
+          "Authorization": sessionStorage.getItem('token')
+        }
+      })
+          .then(
+              response => response.status,
+          )
+          .catch(err => console.warn(err));
+      window.location.reload();
+    },
+    acceptInvitation(data) {
+      console.log(toRaw(data))
+      axios.post('/members/', null, {
+        params: {
+          "workspaceId": data.workspace.workspaceId,
+          "profileId": data.profile.profileId,
+          "role": "USER",
+        },
+        headers: {
+          "Authorization": sessionStorage.getItem('token')
+        }
+      })
+          .then(
+              response => response.status,
+              this.deleteInvitation(data.workspaceInvitationId),
+              window.location.reload(),
+          )
+          .catch(err => console.log(err));
     }
   }
+
 }
 </script>

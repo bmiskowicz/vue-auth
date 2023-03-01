@@ -1,22 +1,24 @@
 <template>
   <div class="form-signin w-100 m-auto">
     {{this.message}}
-    <a style="font-weight: bolder">Your Issues:</a>
-    <br>
-    <div v-for="(item, id) in this.issues" :key="item.id">
-      <a v-bind:href="'/issue/'+ this.issues[id].issueId">
-        Issue: {{ this.issues[id].issueName }}
-      </a>
+    <div v-if="this.logged">
+      <a style="font-weight: bolder">Your Issues:</a>
       <br>
-      Issue status: {{ this.issues[id].state }}
-      <br>
-      Deadline date: {{ this.issues[id].deadline.toString().slice(0, 10) }}
-      <br>
-      Workspace:  <a v-bind:href="'/workspace/'+ this.issues[id].workspaceId">
-      {{ this.issues[id].workspaceId }}
-      </a>
-      <br>
-      <br>
+      <div v-for="(item, id) in this.issues" :key="item.id">
+        <a v-bind:href="'/issue/'+ this.issues[id].issueId">
+          Issue: {{ this.issues[id].issueName }}
+        </a>
+        <br>
+        Issue status: {{ this.issues[id].state }}
+        <br>
+        Deadline date: {{ this.issues[id].deadline.toString().slice(0, 10) }}
+        <br>
+        Workspace:  <a v-bind:href="'/workspace/'+ this.issues[id].workspaceId">
+        {{ this.issues[id].workspaceId }}
+        </a>
+        <br>
+        <br>
+      </div>
     </div>
   </div>
 </template>
@@ -35,6 +37,7 @@ export default {
       user: sessionStorage.getItem('user_id'),
       name : '',
       description: '',
+      logged: false,
     }
   },
   created() {
@@ -53,6 +56,7 @@ export default {
                     })
               }
             })
+            .then(this.logged = true)
         : this.message = "You are not logged in. Log in to access profiles";
 
   },

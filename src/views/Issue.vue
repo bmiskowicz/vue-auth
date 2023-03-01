@@ -136,7 +136,7 @@ export default {
                     this.workspaceName = toRaw(response4.data.workspaceName)
                   })
             })
-        : this.message = "You are not logged in. Log in to access profiles";
+        : this.message = "You are not logged in. Log in to access issues";
 
   },
   methods: {
@@ -170,7 +170,6 @@ export default {
               response => response.status,
           )
           .catch(err => console.warn(err));
-      this.$router.go()
       router.push('/profile/issue')
     },
     drop(profileId) {
@@ -203,11 +202,6 @@ export default {
   }
 }
 </script>
-
-
-<!--TODO: front - w workspace dodać zaproszenia -->
-<!--TODO: front - w workspace dodać zaproszenia dla kogoś -->
-
 
 <!--TODO: na backu - jeśli ktoś jest wyrzucony z workspace to wypada ze wszystkich issue w nim -->
 <!--TODO: na backu - jeśli ktoś wychodzi z workspace i jest ostatni, to usuwa się wszystko związane z tym workspace-->
